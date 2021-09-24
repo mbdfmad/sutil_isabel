@@ -1,0 +1,273 @@
+---
+title: "Tarea 2"
+author: "Isabel Sutil Martin"
+date: "23/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Ejercicio 1. Simulando variables aleatorias discretas.
+
+**Apartado 1:** La variable aleatoria discreta $X1$ tiene esta tabla de densidad de probabilidad (es la variable que se usa como ejemplo en la Sesión ):
+$$
+\begin{array}{|c|c|c|c|c|c|c|}
+\hline
+\text{valor de }X1 & 0 & 1 & 2 & 3 \\
+\hline
+\text{Probabilidad de ese valor }P(X = x_i) & \dfrac{64}{125} &
+\dfrac{48}{125}& \dfrac{12}{125} & \dfrac{1}{125}\rule{0mm}{6mm} \\[3mm]
+\hline
+\end{array}
+$$
+Calcula la media y la varianza teóricas de esta variable.
+
+Importamos todas las librerias
+
+```{r}
+library(tidyverse)
+library(haven)
+library(nycflights13)
+library(GGally)
+```
+
+```{r}
+
+x1 = c(0:3)
+probabilidad = c(64/125, 48/125, 12/125, 1/125)
+
+
+(media = sum(x1*probabilidad))
+(varianza = sum((x1-media)^2*probabilidad))
+
+```
+
+**Apartado 2:**  Combina `sample` con `replicate` para simular cien mil muestras de tamaño 10 de esta variable $X1$. Estudia la distribución de las medias muestrales como hemos hecho en ejemplos previos, ilustrando con gráficas la distribución de esas medias muestrales. Cambia después el tamaño de la muestra a 30 y repite el análisis.
+
+Analisis tamaño 10 
+
+```{r}
+
+mediasMuestrales_x1 = replicate(100000, {
+  muestra = sample(x1,10, replace = TRUE)
+  mean(muestra)
+})
+
+# Representación gráfica de la distribución de las medias muestrales
+
+hist(mediasMuestrales_x1, breaks = 40, main="", 
+     col="peachpuff", probability = TRUE, xlim=range(x1))
+    lines(density(mediasMuestrales_x1), lwd=4, col="red")
+    lines(density(x1), lwd=4, col="blue")
+    abline(v = mean(x1), lty=2, lwd=5, col="blue")
+```
+
+Analisis tamaño 30 
+
+```{r}
+
+mediasMuestrales_x2 = replicate(100000, {
+  muestra = sample(x1,30, replace = TRUE)
+  mean(muestra)
+})
+
+# Representación gráfica de la distribución de las medias muestrales
+
+hist(mediasMuestrales_x2, breaks = 40, main="", 
+     col="peachpuff", probability = TRUE, xlim=range(x1))
+    lines(density(mediasMuestrales_x2), lwd=4, col="red")
+    lines(density(x1), lwd=4, col="blue")
+    abline(v = mean(x1), lty=2, lwd=5, col="blue")
+```
+
+**Apartado 3:** La variable aleatoria discreta $X2$ tiene esta tabla de densidad de probabilidad:
+$$
+\begin{array}{|c|c|c|c|c|c|}
+\hline
+\text{valor de }X2 & 0 & 1 & 2 \\
+\hline
+\text{Probabilidad de ese valor }P(X = x_i) & \dfrac{1}{2} &
+\dfrac{1}{4}&  \dfrac{1}{4}\rule{0mm}{6mm} \\[3mm]
+\hline
+\end{array}
+$$
+Suponemos que $X1$ y $X2$ son independientes. ¿Qué valores puede tomar la suma $X1 + X2$? ¿Cuál es su tabla de probabilidad?
+
+```{r}
+
+x2 = c(0:2)
+probabilidad2 = c(1/2, 1/4, 1/4)
+
+
+(media = sum(x1*probabilidad))
+(varianza = sum((x1-media)^2*probabilidad))
+
+#Valores de la suma
+
+#Prob de la suma de 0
+p0 = probabilidad[1]*probabilidad2[1]
+#Prob de la suma de 1
+p1 = probabilidad[2]*probabilidad2[1] + probabilidad[1]*probabilidad2[2]
+#Prob de la suma de 2
+p2 = probabilidad[3]*probabilidad2[1] + probabilidad[2]*probabilidad2[2] + probabilidad[1]*probabilidad2[3]
+#Prob de la suma de 3
+p3 = probabilidad[4]*probabilidad2[1] + probabilidad[2]*probabilidad2[3] + probabilidad[3]*probabilidad2[2]
+#Prob de la suma de 4
+p4 = probabilidad[4]*probabilidad2[2] + probabilidad[3]*probabilidad2[3]
+#Prob de la suma de 5
+p5 = probabilidad[4]*probabilidad2[3]
+
+tabla_prob = matrix(c(p0, p1, p2, p3, p4, p5), nrow = 1)
+colnames(tabla_prob) =  c("Y0", "Y1", "Y2", "Y3", "Y4", "Y5")
+tabla_prob
+
+```
+
+**Apartado 4:** Calcula la media teórica de la suma $X_1 + X_2$. Después usa `sample` y `replicate` para simular cien mil *valores* de esta variable suma. Calcula la media de esos valores. *Advertencia:* no es el mismo tipo de análisis que hemos hecho en el segundo apartado. 
+
+````{r}
+vect_suma = c(0:5)
+
+#media teorica
+(media_teorica = sum(vect_suma* tabla_prob))
+
+#generamos cien mil valores
+valores = replicate(100000, {
+  valor = sample(vect_suma, 1, prob = c(p0, p1, p2, p3, p4, p5))
+})
+
+#media de valores
+(media_valores = mean(valores))
+```
+
+
+
+# Ejercicio 2. Datos limpios
+
++ Descarga el fichero de este enlace  
+
+[https://gist.githubusercontent.com/fernandosansegundo/471b4887737cfcec7e9cf28631f2e21e/raw/b3944599d02df494f5903740db5acac9da35bc6f/testResults.csv](https://gist.githubusercontent.com/fernandosansegundo/471b4887737cfcec7e9cf28631f2e21e/raw/b3944599d02df494f5903740db5acac9da35bc6f/testResults.csv) 
+
++ Este fichero contiene las notas de los alumnos de una clase, que hicieron dos tests cada semana durante cinco semanas. La tabla de datos no cumple los principios de *tidy data* que hemos visto en clase. Tu tarea en este ejercicio es explicar por qué no se cumplen y obtener una tabla de datos limpios con la misma información usando *tidyR*.  
+**Indicación:** lee la ayuda de la función `separate` de *tidyR*.
+
+```{r}
+csv_0 = read_csv("testResults.csv")
+
+(csv_0)
+```
+
+```{r}
+# una columna 2 variables en 1
+
+csv_1= csv_0 %>%
+  separate(col  =  gender_age, into =  c("gender", "age"), sep  =  "_", convert = TRUE)
+
+csv_1
+
+```
+
+
+
+```{r}
+# los nombres de algunas columnas de la tabla no son realmente variables, sino valores de una variable
+
+colnames(csv_1) = c("name","id", "gender", "age", "ntest", "1", "2", "3", "4", "5")
+
+(csv_2 = csv_1 %>%
+  pivot_longer("1":"5", names_to = "semana"))
+
+```
+
+
+
+
+
+```{r}
+# una observación está repartida en varias filas de la tabla (test_number)
+
+csv_3 = csv_2 %>%
+  pivot_wider(names_from = ntest, values_from = value )
+
+colnames(csv_3) = c("name","id", "gender", "age", "semana", "test1", "test2")
+
+csv_3
+```
+
+# Ejercicio 3. Lectura de R4DS.
+
+Contnuando con nuestra *lectura conjunta* de este libro, si revisas el índice verás que hemos cubierto (holgadamente en algún caso) el contenido de los Capítulos 6, 8, 9, 10 y 11. Todos esos Capítulos son relativamente ligeros.  Por eso esta semana conviene detenerse un poco en la lectura de los Capítulos 7 y 12, que son los más densos en información. Y como motivación os proponemos un par de ejercicios, uno por cada uno de esos capítulos. 
+
++ Haz el [ejercicio 2 de la Sección 7.5.1.1 de R4DS](https://r4ds.had.co.nz/exploratory-data-analysis.html#exercises-17). Las ideas de esa sección son importantes para nuestro trabajo de las próximas sesiones.
+
+
+Enunciado:
+What variable in the diamonds dataset is most important for predicting the price of a diamond? How is that variable correlated with cut? Why does the combination of those two relationships lead to lower quality diamonds being more expensive?
+
+```{r}
+#Para ver la relacion entre variables
+ggpairs(diamonds)
+
+#Para predecir el precio vamos a usar carat por que es la que tiene mas correlacion (0.922). 
+#Podemos ver que tiene muy poca relacion con table y depth. Las otras variables con las que se correlacion son x, y, z (involucradas en el peso)
+
+ggplot(diamonds, aes(x = cut, y = carat)) +
+  geom_boxplot()
+
+#'Menor calidad' implica que es mas cara ya que cuanto mejor es el corte del diamante menos quilates tiene. 
+
+```
+
+
+
++ Haz el [ejercicio 4 de la Sección 12.6.1 de R4DS](https://r4ds.had.co.nz/tidy-data.html#exercises-27). ¡Aprovecha el código previo de esa sección para trabajar con datos limpios!
+
+
+Enunciado:
+For each country, year, and sex compute the total number of cases of TB. Make an informative visualisation of the data.
+
+```{r, echo=FALSE}
+#Limpiamos los datos
+
+who1 <- who %>% 
+  pivot_longer(
+    cols = new_sp_m014:newrel_f65, 
+    names_to = "key", 
+    values_to = "cases", 
+    values_drop_na = TRUE
+  )
+who2 <- who1 %>% 
+  mutate(names_from = stringr::str_replace(key, "newrel", "new_rel"))
+
+who3 <- who2 %>% 
+  separate(key, c("new", "type", "sexage"), sep = "_")
+
+who4 <- who3 %>% 
+  select(-new, -iso2, -iso3)
+
+who5 <- who4 %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+
+```
+
+```{r}
+
+(who5%>%
+  select(country, year, sex, cases))
+
+who5 %>%
+  group_by(country, year, sex) %>%
+  filter(year > 1995) %>%
+  summarise(cases = sum(cases)) %>%
+  unite(country_sex, country, sex, remove = FALSE) %>%
+  ggplot(aes(x = year, y = cases, group = country_sex, colour = sex)) +
+  geom_line()
+
+```
+
+
+
+
+
